@@ -1,10 +1,6 @@
 class CarouselItem extends HTMLElement {
-    private shadow: ShadowRoot
     constructor() {
         super()
-        this.Initialize();
-    }
-    Initialize() {
     }
 }
 
@@ -56,6 +52,10 @@ class Carousel extends HTMLElement {
             border-radius: 50%;
             box-shadow: 1px 1px 1px #403e3e inset;
             margin: 0.3em;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            cursor: pointer;
         }
  
  `
@@ -77,6 +77,7 @@ class Carousel extends HTMLElement {
         }
         this.interval = this.hasAttribute('interval') ? parseFloat(this.getAttribute('interval')) : 3000;
         this.transitionDuration = this.hasAttribute('trans-duration') ? parseFloat(this.getAttribute('trans-duration')) : 500;
+        let hasNumbers=this.hasAttribute('numbered');
 
         this.shadow = this.attachShadow({ mode: "open" })
 
@@ -100,6 +101,13 @@ class Carousel extends HTMLElement {
                 this.index = index;
                 this.SetItem();
             })
+            if(hasNumbers){
+                let span=document.createElement('span');
+                span.style.fontSize=".7em";
+                span.style.color="#ffffff";
+                span.innerHTML=(this.bulets.indexOf(bulet)+1).toString();
+                bulet.appendChild(span)
+            }
         })
         this.shadow.appendChild(buletContainer);
 
