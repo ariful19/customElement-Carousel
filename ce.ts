@@ -144,6 +144,125 @@ class Carousel extends HTMLElement {
         }, this.transitionDuration)
     }
 }
-
+class GoodSpinnerItem extends HTMLElement {
+    constructor() {
+        super();
+    }
+}
+class GoodSpinner extends HTMLElement {
+    constructor() {
+        super();
+        this.items = [];
+        this.interval = 3000;
+        this.index = 0;
+        this.stylel = `
+    @keyframes inRtoL{
+        from{
+            opacity:0;
+            transform:translateX(300px);
+        }
+        to{
+            opacity:1;
+            transform:translateX(0);
+        }
+    }
+    @keyframes inLtoR{
+        from{
+            opacity:0;
+            transform:translateX(-300px);
+        }
+        to{
+            opacity:1;
+            transform:translateX(0);
+        }
+    }
+    @keyframes outRtoL{
+        from{
+            opacity:1;
+            transform:translateX(0);            
+        }
+        to{
+            opacity:0;
+            transform:translateX(-300px);
+        }
+    }
+    @keyframes outLtoR{
+        from{
+            opacity:1;
+            transform:translateX(0);            
+        }
+        to{
+            opacity:0;
+            transform:translateX(300px);
+        }
+    }
+    `;
+        this.init();
+    }
+    init() {
+        let items = this.querySelectorAll('good-spinner-item');
+        this.interval = this.hasAttribute('interval') ? parseInt(this.getAttribute('interval')) : 10000;
+        for (let index = 0; index < items.length; index++) {
+            const element = items.item(index);
+            element.style.transition = 'all .5s';
+            this.items.push(element.cloneNode(true));
+            element.remove();
+        }
+        this.setAttribute('style', 'display:grid;grid-template-columns:1fr; grid-template-rows:1fr');
+        let style = document.createElement('style');
+        style.textContent = this.stylel;
+        this.appendChild(style);
+        this.containerDiv = document.createElement('div');
+        this.containerDiv.setAttribute('style', 'grid-column:1;grid-row:1;perspective:500px');
+        this.appendChild(this.containerDiv);
+        this.arrowDiv = document.createElement('div');
+        this.arrowDiv.setAttribute('style', `grid-column:1;grid-row:1;display: flex;
+        flex-flow: row;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 5em;
+        color: white;
+        filter: drop-shadow(2px 2px 4px gray) opacity(.7);`);
+        this.arrowDiv.innerHTML = `<div>&lt;</div><div>&gt;</div>`;
+        this.appendChild(this.arrowDiv);
+        this.leftArrow = this.arrowDiv.children.item(0);
+        this.rightArrow = this.arrowDiv.children.item(1);
+        this.leftArrow.style.cursor = 'pointer';
+        this.rightArrow.style.cursor = 'pointer';
+        this.leftArrow.addEventListener('click', () => {
+            this.index = this.index == 0 ? this.items.length - 1 : this.index - 1;
+            this.index = this.index == 0 ? this.items.length - 1 : this.index - 1;
+            clearInterval(this.ival);
+            this.change(true);
+            this.Start();
+        });
+        this.rightArrow.addEventListener('click', () => {
+            this.index = this.items.length - 1 == this.index ? 0 : this.index + 1;
+            clearInterval(this.ival);
+            this.change();
+            this.Start();
+        });
+        this.change();
+        this.Start();
+    }
+    Start() {
+        this.ival = setInterval(() => this.change(), this.interval);
+    }
+    change(isLtoR) {
+        let current = this.containerDiv.querySelector('good-spinner-item');
+        if (current) {
+            current.style.animation = isLtoR ? 'outLtoR .5s forwards' : 'outRtoL .5s forwards';
+        }
+        setTimeout(() => {
+            this.containerDiv.innerHTML = '';
+            let el = this.items[this.index];
+            this.containerDiv.appendChild(el);
+            el.style.animation = isLtoR ? 'inLtoR .5s forwards' : 'inRtoL .5s forwards';
+            this.index = this.items.length - 1 == this.index ? 0 : this.index + 1;
+        }, 500);
+    }
+}
+customElements.define('good-spinner-item', GoodSpinnerItem);
+customElements.define('good-spinner', GoodSpinner);
 customElements.define('good-crsl-item', CarouselItem);
 customElements.define('good-crsl', Carousel);
